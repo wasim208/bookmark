@@ -77,6 +77,58 @@ app.post("/login", (req, res) => {
   }
 });
 
+app.post("/book", (req, res) => {
+  if (req.isAuthenticated()) {
+    if (
+      !(req.body.title && req.body.img_url) ||
+      req.body.title == "" ||
+      req.body.img_url == "" ||
+      req.body.genre == "" ||
+      req.body.blog == "" ||
+      req.body.rating == null
+    ) {
+      res.status(400).send({ message: "All fields must be filled" });
+    } else {
+      req.user.books.push({
+        title: req.body.title,
+        img_link: req.body.img_url,
+        genre: req.body.genre,
+        blog: req.body.blog,
+        rating: req.body.rating,
+        reading: req.body.reading,
+      });
+      req.user.save();
+      res.send({ message: "Book uploaded" });
+    }
+  }
+});
+
+app.get("/books", (req, res) => {
+  if (req.isAuthenticated()) {
+    res.send(req.user.books);
+  } else {
+    res.redirect("/");
+  }
+});
+
+app.delete("/book", (req, res) => {
+  if (req.isAuthenticated()) {
+    User.updateOne(
+      { _id: req.user.id },
+      { $pull: { books: { _id: req.body.id } } },
+      (err, obj) => {
+        if (err) {
+          res.send({ error: "couldn't delete element" });
+        } else {
+          res.send({ message: "Book deleted" });
+        }
+      }
+    );
+  } else {
+    res.redirect("/");
+  }
+});
+
 app.post("/signup", (req, res) => {
   if (req.isAuthenticated()) {
     res.status(400);

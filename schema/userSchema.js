@@ -36,8 +36,6 @@ const userSchema = new mongoose.Schema({
       blog: String,
       rating: {
         type: [Number],
-        min: 0,
-        max: 5,
       },
     },
   ],
